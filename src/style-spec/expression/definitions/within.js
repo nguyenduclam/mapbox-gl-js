@@ -1,35 +1,27 @@
 // @flow
 
-import assert from 'assert';
-import {isValue, typeOf} from '../values';
-
+import {isValue} from '../values';
 import type {Type} from '../types';
 import {BooleanType} from '../types';
 import type {Expression} from '../expression';
 import type ParsingContext from '../parsing_context';
 import type EvaluationContext from '../evaluation_context';
 import type {CanonicalTileID} from '../../../source/tile_id';
-// import geojson from '../source/geojson_source';
-import type {GeoJSON, GeoJSONPolygon, GeoJSONMultiPolygon} from '@mapbox/geojson-types';
+import type {GeoJSONPolygon, GeoJSONMultiPolygon} from '@mapbox/geojson-types';
 import type {Feature} from '../index';
 import MercatorCoordinate from '../../../geo/mercator_coordinate';
 import EXTENT from '../../../data/extent';
 import Point from '@mapbox/point-geometry';
-import LngLat from '../../../geo/lng_lat';
-import classifyRings from '../../../util/classify_rings';
-const EARCUT_MAX_RINGS = 500;
 
 type GeoJSONPolygons =| GeoJSONPolygon | GeoJSONMultiPolygon;
 
 function rayIntersect(p, p1, p2) {
-    // debugger;
     return ((p1[1] > p[1]) !== (p2[1] > p[1])) && (p[0] < (p2[0] - p1[0]) * (p[1] - p1[1]) / (p2[1] - p1[1]) + p1[0]);
 }
 
 // ray casting algorithm for detecting if point is in polygon
 function pointWithinPolygon(rings, p) {
     let inside = false;
-    debugger;
     for (let i = 0, len = rings.length; i < len; i++) {
         const ring = rings[i];
         for (let j = 0, len2 = ring.length, k = len2 - 1; j < len2; k = j++) {
@@ -39,8 +31,8 @@ function pointWithinPolygon(rings, p) {
     return inside;
 }
 
-function pointWithinPolygons(polygons, p) {
-    // debugger;
+function pointWithinPolygons(polygons, lngLat) {
+    const p = [lngLat.lng, lngLat.lat];
     if (polygons.type === 'Polygon') {
         return pointWithinPolygon(polygons.coordinates, p);
     }
@@ -105,10 +97,8 @@ class Within implements Expression {
         if (ctx.feature != null && ctx.canonical != null && ctx.geometryType() === 'Point') {
             return pointsWithinPolygons(ctx.feature, ctx.canonical, this.geojson);
         } else if (ctx.geometryType() === 'LineString') {
-              debugger;
             return true;
         }
-          debugger;
         return false;
     }
 
