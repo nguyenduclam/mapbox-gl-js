@@ -27,7 +27,7 @@ import type {
     WorkerTileCallback,
 } from '../source/worker_source';
 import type {PromoteIdSpecification} from '../style-spec/types';
-// import type {CanonicalTileID} from './tile_id';
+import type {CanonicalTileID} from './tile_id';
 class WorkerTile {
     tileID: OverscaledTileID;
     uid: string;
@@ -124,7 +124,7 @@ class WorkerTile {
                     sourceID: this.source
                 });
                 // debugger;
-                bucket.populate(features, options);
+                bucket.populate(features, options, this.tileID.canonical);
                 featureIndex.bucketLayerIDs.push(family.map((l) => l.id));
             }
         }
